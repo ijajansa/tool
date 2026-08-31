@@ -1,0 +1,1 @@
+<label class="field"><span>WebP quality <output data-for="quality">82</output>%</span><input type="range" name="quality" min="1" max="100" value="82"></label><p class="mt-3 text-xs leading-5 text-slate-500">Dimensions are preserved. Multiple images are packaged into one ZIP download.</p>

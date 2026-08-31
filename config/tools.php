@@ -1,0 +1,58 @@
+<?php
+
+return [
+    'background-remover' => [
+        'name' => 'Background Remover',
+        'short' => 'Remove a photo background in one click.',
+        'description' => 'Create a clean transparent PNG or replace the background with a solid colour.',
+        'category' => 'Background',
+        'icon' => 'wand',
+        'multiple' => false,
+        'output' => 'PNG',
+    ],
+    'image-compressor' => [
+        'name' => 'Image Compressor & Resizer',
+        'short' => 'Shrink and resize images without the fuss.',
+        'description' => 'Control quality and dimensions, preserve proportions, and export JPG, PNG, or WebP.',
+        'category' => 'Optimize',
+        'icon' => 'compress',
+        'multiple' => false,
+        'output' => 'JPG, PNG, WebP',
+    ],
+    'product-photo-enhancer' => [
+        'name' => 'Product Photo Enhancer',
+        'short' => 'Polish product photos for your storefront.',
+        'description' => 'Tune colour and clarity, add a white background, or use optional local AI upscale.',
+        'category' => 'Enhance',
+        'icon' => 'sparkles',
+        'multiple' => false,
+        'output' => 'JPG, PNG',
+    ],
+    'passport-photo-maker' => [
+        'name' => 'Passport Photo Maker',
+        'short' => 'Prepare ID photos and print-ready sheets.',
+        'description' => 'Choose exact photo and paper dimensions, margins, gaps, and background colour.',
+        'category' => 'Create',
+        'icon' => 'id',
+        'multiple' => false,
+        'output' => 'Individual + sheet',
+    ],
+    'logo-transparency' => [
+        'name' => 'Logo Transparency Tool',
+        'short' => 'Turn a flat logo background transparent.',
+        'description' => 'Pick the background colour and fine-tune tolerance while preserving soft edges.',
+        'category' => 'Background',
+        'icon' => 'layers',
+        'multiple' => false,
+        'output' => 'PNG',
+    ],
+    'image-to-webp' => [
+        'name' => 'Image to WebP Converter',
+        'short' => 'Convert one image or a whole batch to WebP.',
+        'description' => 'Preserve dimensions, choose quality, and download batches as a ZIP file.',
+        'category' => 'Convert',
+        'icon' => 'image',
+        'multiple' => true,
+        'output' => 'WebP / ZIP',
+    ],
+];

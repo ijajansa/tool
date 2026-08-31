@@ -9,3 +9,63 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    html { scroll-behavior: smooth; }
+    button, input, select { font: inherit; }
+    :focus-visible { outline: 3px solid rgb(196 181 253); outline-offset: 3px; }
+}
+
+@layer components {
+    .site-width { @apply mx-auto w-full max-w-7xl px-5 sm:px-8; }
+    .eyebrow { @apply w-fit rounded-full bg-violet-50 px-3 py-1.5 text-xs font-black uppercase tracking-[.16em] text-violet-700; }
+    .text-gradient { @apply bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 bg-clip-text text-transparent; }
+    .btn-primary { @apply items-center gap-3 rounded-xl bg-violet-600 px-5 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:cursor-wait disabled:opacity-60; }
+    .panel { @apply rounded-2xl border border-slate-200 bg-white shadow-sm; }
+    .tool-card { @apply rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition duration-200 hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl hover:shadow-violet-100/60; }
+    .tool-icon { @apply grid size-12 place-items-center rounded-2xl bg-violet-100 text-violet-700; }
+    .chip { @apply inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-slate-600; }
+    .search-box { @apply flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus-within:border-violet-400 sm:w-72; }
+    .search-box svg { @apply size-5 fill-none stroke-slate-400 stroke-2; }
+    .search-box input { @apply min-w-0 flex-1 border-0 bg-transparent text-sm outline-none; }
+    .privacy-banner { @apply flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-6 sm:items-center; }
+    .drop-zone { @apply flex min-h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-7 text-center transition hover:border-violet-400 hover:bg-violet-50/40; }
+    .drop-zone.is-dragging { @apply scale-[.99] border-violet-500 bg-violet-50; }
+    .preview-grid { @apply grid gap-4 sm:grid-cols-2; }
+    .preview-grid figcaption { @apply mb-2 text-xs font-black uppercase tracking-wider text-slate-500; }
+    .preview-stage { @apply flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50; }
+    .preview-stage img { @apply h-full w-full object-contain; }
+    .checker { background-color: #fff; background-image: linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%); background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0; }
+    .file-pill { @apply flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800; }
+    .file-pill small { @apply text-emerald-700; }
+    .form-heading { @apply mb-3 text-sm font-extrabold text-slate-800; }
+    .form-grid { @apply grid gap-4 sm:grid-cols-2; }
+    .option-grid { @apply grid gap-3 sm:grid-cols-2; }
+    .field { @apply flex flex-col gap-2 text-sm font-bold text-slate-700; }
+    .field output { @apply float-right rounded bg-violet-100 px-2 py-0.5 text-violet-700; }
+    .field input[type="number"], .field select { @apply h-11 w-full rounded-xl border border-slate-300 bg-white px-3 font-normal outline-none transition focus:border-violet-500 focus:ring-3 focus:ring-violet-100; }
+    .field input[type="color"] { @apply h-11 w-full cursor-pointer rounded-xl border border-slate-300 bg-white p-1; }
+    .field input[type="range"] { @apply h-2 cursor-pointer accent-violet-600; }
+    .check { @apply flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700; }
+    .check input { @apply size-4 accent-violet-600; }
+    .check small { @apply font-normal text-slate-400; }
+    .radio-card { @apply flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm font-bold has-[:checked]:border-violet-500 has-[:checked]:bg-violet-50; }
+    .radio-card input { @apply accent-violet-600; }
+    .status-dot { @apply size-3 shrink-0 rounded-full bg-slate-300; }
+    .status-dot.processing { @apply animate-pulse bg-amber-400; }
+    .status-dot.success { @apply bg-emerald-500; }
+    .status-dot.failed { @apply bg-red-500; }
+    .progress-bar { animation: progress 1.2s ease-in-out infinite; width: 40%; }
+    .stat { @apply rounded-xl bg-slate-50 p-3; }
+    .stat span { @apply block text-[10px] font-black uppercase tracking-wider text-slate-400; }
+    .stat strong { @apply mt-1 block text-sm; }
+    .download-button { @apply flex items-center gap-3 rounded-xl bg-emerald-600 p-3 text-sm text-white transition hover:bg-emerald-700; }
+    .download-button > span:first-child { @apply grid size-8 shrink-0 place-items-center rounded-lg bg-white/15 text-lg; }
+    .download-button strong, .download-button small { @apply block truncate; }
+    .download-button small { @apply mt-0.5 text-xs text-emerald-100; }
+}
+
+.hero-blob { position:absolute; border-radius:9999px; filter:blur(70px); opacity:.24; pointer-events:none; }
+.hero-blob-one { width:25rem; height:25rem; left:-8rem; top:2rem; background:#a78bfa; }
+.hero-blob-two { width:22rem; height:22rem; right:-6rem; bottom:-5rem; background:#fb923c; }
+@keyframes progress { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }

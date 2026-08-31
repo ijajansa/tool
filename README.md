@@ -1,59 +1,77 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PixelMint Tools — Phase 1
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 12 platform for free, anonymous image tools with private queued processing and an optional local FastAPI AI service.
 
-## About Laravel
+## Included tools
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Background removal with transparent PNG or solid colour
+- Image compression/resizing to JPG, PNG, or WebP
+- Product-photo enhancement with controls and optional 2× AI-service upscale
+- Passport/ID photo and print-sheet generation (A4 and 4×6)
+- Colour-selected logo background transparency
+- Single/batch WebP conversion with ZIP output
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The tool catalogue lives in `config/tools.php`; site branding lives in `config/site.php`. Upload limits, expiry, rate limits, and AI connection settings live in `config/image-tools.php`.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Application setup
 
-## Learning Laravel
+```powershell
+composer install
+Copy-Item .env.example .env
+php artisan key:generate
+php artisan migrate
+npm install
+npm run build
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Use the equivalent `cp .env.example .env` on Linux. Existing installations should merge the new image settings from `.env.example`, preserving their real secrets. PHP needs GD, Fileinfo, cURL, ZIP, and PDO for the chosen database.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+For local development, `composer run dev` starts Laravel, Vite, logs, and the queue listener. Alternatively run these in separate terminals:
 
-## Laravel Sponsors
+```powershell
+php artisan serve
+npm run dev
+php artisan queue:work --tries=1 --timeout=180
+php artisan schedule:work
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Production should supervise `php artisan queue:work --tries=1 --timeout=180` and execute `php artisan schedule:run` every minute. The scheduled `images:cleanup` command removes expired database records and private input/output directories every ten minutes. A synchronous queue is suitable only for development/testing (`QUEUE_CONNECTION=sync`).
 
-### Premium Partners
+## Local AI service
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+The service is documented in [`services/image-ai/README.md`](services/image-ai/README.md). Quick start on Windows:
 
-## Contributing
+```powershell
+cd services/image-ai
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --host 127.0.0.1 --port 8090
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Linux:
 
-## Code of Conduct
+```bash
+cd services/image-ai
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 127.0.0.1 --port 8090
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Background removal and options that explicitly request it need the service. Compression, resizing, standard enhancement, passport layout without removal, transparency, and WebP conversion work entirely inside PHP. The default enhancer is a maintained Pillow fallback; Real-ESRGAN is documented as an optional future backend because its PyTorch/CUDA requirements vary by host.
 
-## Security Vulnerabilities
+## Security and lifecycle
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Files use UUID names under Laravel's private local disk and are never linked into `public`. Task status is bound to the anonymous session. Downloads require both the owning session and a short-lived Laravel signature. Server-side MIME, extension, byte-size, and decoded pixel limits are enforced. Processing options are allow-listed, raw IPs are not stored, generated files are re-encoded to strip metadata, and no user-provided shell command is executed.
 
-## License
+## Verification
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```powershell
+php artisan test
+vendor\bin\pint --test
+npm run build
+python -m compileall services/image-ai/app
+```
+
+Phase 2 tools are intentionally not included.
