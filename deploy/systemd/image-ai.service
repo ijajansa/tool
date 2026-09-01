@@ -1,0 +1,22 @@
+[Unit]
+Description=PixelMint local image AI service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/tools/current/services/image-ai
+EnvironmentFile=/var/www/tools/shared/image-ai.env
+Environment=U2NET_HOME=/var/www/tools/shared/models
+ExecStart=/var/www/tools/shared/image-ai-venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8090 --workers 1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/tmp /var/www/tools/shared
+
+[Install]
+WantedBy=multi-user.target

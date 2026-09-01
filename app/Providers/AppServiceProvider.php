@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\ToolSetting;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -23,7 +24,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('image-tools', function (Request $request) {
-            return Limit::perMinute(config('image-tools.rate_limit_per_minute'))->by($request->ip());
+            $tool = (string) $request->route('tool');
+            $limit = ToolSetting::find($tool)?->rate_limit ?? config('image-tools.rate_limit_per_minute');
+
+            return Limit::perMinute($limit)->by(hash_hmac('sha256', (string) $request->ip(), config('app.key')));
         });
+        RateLimiter::for('qr-create', fn (Request $request) => Limit::perHour(config('phase2.dynamic_qr.create_per_hour'))->by(hash_hmac('sha256', (string) $request->ip(), config('app.key'))));
+        RateLimiter::for('qr-scan', fn (Request $request) => Limit::perMinute(config('phase2.dynamic_qr.scan_per_minute'))->by($request->route('code').':'.hash_hmac('sha256', (string) $request->ip(), config('app.key'))));
     }
 }

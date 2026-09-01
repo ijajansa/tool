@@ -40,6 +40,7 @@ class Phase2ToolsTest extends TestCase
 
     public function test_resume_barcode_description_whatsapp_and_stationery_validate_and_queue(): void
     {
+        config(['image-tools.max_concurrent_tasks' => 10]);
         Queue::fake();
         $cases = [
             'resume-builder' => ['name' => 'Asha Rao', 'email' => 'asha@example.com', 'summary' => 'Experienced developer building accessible products.', 'template' => 'classic', 'sections' => [['title' => 'Experience', 'content' => 'Built tools']]],
@@ -81,6 +82,23 @@ class Phase2ToolsTest extends TestCase
         $this->postJson('/phase-2/bulk-watermark-tool/tasks', ['images' => $images, 'payload' => ['mode' => 'repair', 'position' => 'center', 'opacity' => 40, 'authorization_confirmed' => false]])->assertUnprocessable()->assertJsonValidationErrors('payload.authorization_confirmed');
         $tooMany = array_map(fn ($i) => UploadedFile::fake()->image("$i.jpg", 10, 10), range(1, 21));
         $this->postJson('/phase-2/bulk-watermark-tool/tasks', ['images' => $tooMany, 'payload' => ['mode' => 'add', 'position' => 'center', 'opacity' => 40]])->assertUnprocessable()->assertJsonValidationErrors('images');
+    }
+
+    public function test_remaining_server_tools_accept_valid_inputs(): void
+    {
+        config(['image-tools.max_concurrent_tasks' => 10]);
+        Queue::fake();
+        $pdf = UploadedFile::fake()->createWithContent('sample.pdf', "%PDF-1.4\n%%EOF");
+        $gst = $this->invoicePayload() + ['supplier_gstin' => '27ABCDE1234F1Z5', 'customer_gstin' => '29ABCDE1234F1Z5', 'transaction' => 'interstate'];
+        $gst['items'][0] += ['hsn' => '9983', 'gst_rate' => 18];
+        unset($gst['items'][0]['tax']);
+
+        $this->postJson('/phase-2/pdf-toolkit/tasks', ['documents' => [$pdf], 'payload' => ['operation' => 'merge', 'level' => 'ebook']])->assertAccepted();
+        $this->postJson('/phase-2/gst-invoice-generator/tasks', ['payload' => $gst])->assertAccepted();
+        $this->postJson('/phase-2/seo-audit/tasks', ['payload' => ['url' => 'https://example.com']])->assertAccepted();
+        $this->postJson('/phase-2/bulk-watermark-tool/tasks', ['images' => [UploadedFile::fake()->image('owned.jpg')], 'payload' => ['mode' => 'add', 'position' => 'center', 'opacity' => 40, 'rotation' => 0, 'scale' => 20, 'spacing' => 180, 'authorization_confirmed' => true]])->assertAccepted();
+
+        Queue::assertPushed(ProcessPhase2Task::class, 4);
     }
 
     public function test_seo_audit_route_rejects_loopback_before_queueing(): void

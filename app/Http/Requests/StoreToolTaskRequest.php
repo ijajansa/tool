@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ToolSetting;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +18,7 @@ class StoreToolTaskRequest extends FormRequest
     public function rules(): array
     {
         $tool = $this->route('tool');
-        $max = config('image-tools.max_upload_kb');
+        $max = ToolSetting::find($tool)?->max_upload_kb ?? config('image-tools.max_upload_kb');
         $image = ['required', 'file', "max:$max", 'mimetypes:image/jpeg,image/png,image/webp', 'extensions:jpg,jpeg,png,webp', 'dimensions:min_width=1,min_height=1'];
         $rules = [
             'images' => $tool === 'image-to-webp' ? ['required', 'array', 'min:1', 'max:10'] : ['required', 'array', 'size:1'],

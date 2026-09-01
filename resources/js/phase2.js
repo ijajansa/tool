@@ -80,7 +80,7 @@ if (form) {
         if (type === 'email' && !content.startsWith('mailto:')) content = `mailto:${content}`;
         if (type === 'phone' && !content.startsWith('tel:')) content = `tel:${content}`;
         if (type === 'wifi' && !content.startsWith('WIFI:')) { const [ssid,password=''] = content.split(';'); content = `WIFI:T:WPA;S:${ssid.replace(/[;,:]/g,'')};P:${password.replace(/[;,:]/g,'')};;`; }
-        const response = await fetch('/qr/dynamic', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify({ mode, content_type: type, content, ecc: document.querySelector('#qr-ecc').value, size: Number(document.querySelector('#qr-size').value), color: document.querySelector('#qr-color').value }) });
+        const response = await fetch('/qr/dynamic', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }, body: JSON.stringify({ mode, content_type: type, content, ecc: document.querySelector('#qr-ecc').value, size: Number(document.querySelector('#qr-size').value), color: document.querySelector('#qr-color').value, 'cf-turnstile-response': form.querySelector('[name="cf-turnstile-response"]')?.value }) });
         const result = await response.json();
         if (!response.ok) throw new Error(Object.values(result.errors || {}).flat().join(' ') || result.message);
         const box = document.querySelector('#qr-result');

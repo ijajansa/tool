@@ -18,6 +18,8 @@ class ProcessPhase2Task implements ShouldQueue
 
     public int $tries = 1;
 
+    public bool $failOnTimeout = true;
+
     public function __construct(public readonly string $taskId) {}
 
     public function handle(Phase2Processor $processor): void
@@ -25,10 +27,20 @@ class ProcessPhase2Task implements ShouldQueue
         $task = ProcessingTask::findOrFail($this->taskId);
         $task->update(['status' => TaskStatus::Processing, 'started_at' => now()]);
         try {
-            $task->update(['status' => TaskStatus::Completed, 'output_metadata' => $processor->process($task), 'completed_at' => now()]);
+            $output = $processor->process($task);
+            if (($output['output_size'] ?? 0) > config('image-tools.max_output_kb') * 1024) {
+                throw new \RuntimeException('The generated output exceeds the configured limit.');
+            }
+            $task->update(['status' => TaskStatus::Completed, 'output_metadata' => $output, 'completed_at' => now()]);
         } catch (Throwable $exception) {
-            Log::warning('Phase 2 processing failed', ['task' => $task->id, 'exception' => $exception]);
-            $task->update(['status' => TaskStatus::Failed, 'error_code' => 'processing_failed', 'error_message' => $exception->getMessage(), 'completed_at' => now()]);
+            Log::warning('Phase 2 processing failed', ['task' => $task->id, 'exception_class' => $exception::class]);
+            $message = app()->hasDebugModeEnabled() ? $exception->getMessage() : 'We could not process this task. Check optional service requirements or try again.';
+            $task->update(['status' => TaskStatus::Failed, 'error_code' => 'processing_failed', 'error_message' => $message, 'completed_at' => now()]);
         }
+    }
+
+    public function failed(?Throwable $exception): void
+    {
+        ProcessingTask::whereKey($this->taskId)->where('status', '!=', TaskStatus::Completed->value)->update(['status' => TaskStatus::Failed, 'error_code' => 'queue_failure', 'error_message' => 'Processing stopped unexpectedly. Please submit the task again.', 'completed_at' => now()]);
     }
 }

@@ -1,0 +1,1 @@
+<x-layout title="Temporarily unavailable" :noindex="true"><section class="site-width py-24 text-center"><p class="eyebrow mx-auto">Maintenance</p><h1 class="mt-5 text-4xl font-black">We will be back shortly.</h1><p class="mt-4 text-slate-600">Processing is paused safely while maintenance or capacity recovery completes.</p></section></x-layout>

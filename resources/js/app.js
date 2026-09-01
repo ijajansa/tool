@@ -4,17 +4,35 @@ import './phase2';
 const search = document.querySelector('#tool-search');
 if (search) {
     const cards = [...document.querySelectorAll('[data-search]')];
-    search.addEventListener('input', () => {
+    let category = 'all';
+    const filter = () => {
         const query = search.value.trim().toLowerCase();
         let visible = 0;
         cards.forEach((card) => {
-            const matches = card.dataset.search.includes(query);
+            const matches = card.dataset.search.includes(query) && (category === 'all' || card.dataset.category === category);
             card.classList.toggle('hidden', !matches);
             visible += matches ? 1 : 0;
         });
         document.querySelector('#no-tools').classList.toggle('hidden', visible !== 0);
-    });
+    };
+    search.addEventListener('input', filter);
+    document.querySelectorAll('[data-category]').forEach((button) => { if (button.tagName === 'BUTTON') button.addEventListener('click', () => { category = button.dataset.category; document.querySelectorAll('.filter-chip').forEach((item) => item.classList.toggle('is-active', item === button)); filter(); }); });
 }
+
+const consent = document.querySelector('#consent-banner');
+const loadOptionalAnalytics = () => {
+    const url = consent?.dataset.analyticsUrl;
+    if (!url || document.querySelector('script[data-optional-analytics]')) return;
+    const script = document.createElement('script');
+    script.src = url;
+    script.async = true;
+    script.dataset.optionalAnalytics = 'true';
+    document.head.appendChild(script);
+};
+if (consent && !localStorage.getItem('optional-cookie-consent')) consent.classList.remove('hidden');
+if (consent && localStorage.getItem('optional-cookie-consent') === 'accepted') loadOptionalAnalytics();
+document.querySelector('#consent-accept')?.addEventListener('click', () => { localStorage.setItem('optional-cookie-consent','accepted'); loadOptionalAnalytics(); consent.remove(); window.dispatchEvent(new CustomEvent('optional-consent-accepted')); });
+document.querySelector('#consent-reject')?.addEventListener('click', () => { localStorage.setItem('optional-cookie-consent','rejected'); consent.remove(); });
 
 const form = document.querySelector('#tool-form');
 if (form) {

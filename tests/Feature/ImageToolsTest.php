@@ -53,6 +53,27 @@ class ImageToolsTest extends TestCase
         Queue::assertPushed(ProcessImageTask::class, fn ($job) => $job->taskId === $task->id);
     }
 
+    public function test_every_server_image_tool_accepts_its_valid_payload(): void
+    {
+        config(['image-tools.max_concurrent_tasks' => 10]);
+        Queue::fake();
+        $cases = [
+            'background-remover' => ['background_mode' => 'transparent'],
+            'image-compressor' => ['quality' => 80, 'width' => 40, 'preserve_aspect' => true, 'prevent_enlarge' => true, 'format' => 'webp'],
+            'product-photo-enhancer' => ['brightness' => 0, 'contrast' => 0, 'sharpness' => 20, 'saturation' => 0],
+            'passport-photo-maker' => ['photo_width_mm' => 35, 'photo_height_mm' => 45, 'paper' => '4x6', 'margin_mm' => 5, 'gap_mm' => 2, 'background_color' => '#ffffff'],
+            'logo-transparency' => ['background_color' => '#ffffff', 'tolerance' => 20],
+            'image-to-webp' => ['quality' => 80],
+        ];
+
+        foreach ($cases as $tool => $options) {
+            $payload = ['images' => [UploadedFile::fake()->image("$tool.png", 40, 40)]] + $options;
+            $this->postJson("/tools/$tool/tasks", $payload)->assertAccepted();
+        }
+
+        Queue::assertPushed(ProcessImageTask::class, 6);
+    }
+
     public function test_status_is_only_available_to_owning_session(): void
     {
         Queue::fake();

@@ -1,34 +1,16 @@
-@props(['title' => null, 'description' => null])
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ? $title.' · ' : '' }}{{ config('site.name') }}</title>
-    <meta name="description" content="{{ $description ?? config('site.tagline') }}">
-    <link rel="canonical" href="{{ url()->current() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
-    <header class="border-b border-slate-200/80 bg-white/90 backdrop-blur">
-        <div class="site-width flex h-18 items-center justify-between gap-5">
-            <a href="{{ route('home') }}" class="group flex items-center gap-3 font-extrabold tracking-tight" aria-label="{{ config('site.name') }} home">
-                <span class="grid size-9 place-items-center rounded-xl bg-violet-600 text-white shadow-md shadow-violet-200 transition group-hover:-rotate-3">P</span>
-                <span>{{ config('site.name') }}</span>
-            </a>
-            <nav aria-label="Main navigation" class="flex items-center gap-5 text-sm font-semibold text-slate-600">
-                <a href="{{ route('home') }}#tools" class="hover:text-violet-700">All tools</a>
-                <span class="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700 sm:flex"><span class="size-2 rounded-full bg-emerald-500"></span> Private & temporary</span>
-            </nav>
-        </div>
-    </header>
-    <main>{{ $slot }}</main>
-    <footer class="mt-20 border-t border-slate-200 bg-white">
-        <div class="site-width grid gap-8 py-12 md:grid-cols-2">
-            <div><p class="font-extrabold">{{ config('site.name') }}</p><p class="mt-2 max-w-md text-sm leading-6 text-slate-500">Free local-first image tools for useful everyday work. No account and no paid processing API.</p></div>
-            <div class="md:text-right"><p class="text-sm font-semibold text-slate-700">Your files are yours.</p><p class="mt-2 text-sm leading-6 text-slate-500">Uploads stay private and are automatically deleted after {{ config('image-tools.task_ttl_minutes') }} minutes.</p></div>
-        </div>
-    </footer>
-</body>
-</html>
+@props(['title' => null, 'description' => null, 'noindex' => false, 'structuredFaq' => []])
+@php
+    $metaTitle = $title ? $title.' · '.config('site.name') : config('site.name').' · '.config('site.tagline');
+    $metaDescription = $description ?? config('site.tagline');
+    $toolSlug = request()->route('tool');
+    $toolDefinition = is_string($toolSlug) ? config('tools.'.$toolSlug) : null;
+    $structured = $toolDefinition ? ['@context'=>'https://schema.org','@graph'=>[['@type'=>'WebApplication','name'=>$toolDefinition['name'],'description'=>$toolDefinition['description'],'url'=>url()->current(),'applicationCategory'=>$toolDefinition['category'].'Application','operatingSystem'=>'Any','offers'=>['@type'=>'Offer','price'=>'0','priceCurrency'=>'USD']], ['@type'=>'FAQPage','mainEntity'=>collect($structuredFaq)->map(fn ($item) => ['@type'=>'Question','name'=>$item['question'],'acceptedAnswer'=>['@type'=>'Answer','text'=>$item['answer']]])->values()->all()]]] : null;
+    $nonce = request()->attributes->get('csp_nonce');
+@endphp
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}">
+<title>{{ $metaTitle }}</title><meta name="description" content="{{ $metaDescription }}"><meta name="robots" content="{{ $noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large' }}"><link rel="canonical" href="{{ url()->current() }}">
+<meta property="og:type" content="website"><meta property="og:title" content="{{ $metaTitle }}"><meta property="og:description" content="{{ $metaDescription }}"><meta property="og:url" content="{{ url()->current() }}"><meta property="og:image" content="{{ url(config('site.social_image')) }}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{{ $metaTitle }}"><meta name="twitter:description" content="{{ $metaDescription }}"><meta name="twitter:image" content="{{ url(config('site.social_image')) }}">
+<link rel="icon" href="/brand/favicon.svg" type="image/svg+xml"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#6d28d9">@if($structured)<script nonce="{{ $nonce }}" type="application/ld+json">{!! json_encode($structured, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>@endif @if(config('image-tools.captcha.enabled'))<script nonce="{{ $nonce }}" src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>@endif @vite(['resources/css/app.css','resources/js/app.js'])</head>
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased"><a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:p-3">Skip to content</a><header class="border-b border-slate-200/80 bg-white/90 backdrop-blur"><div class="site-width flex h-18 items-center justify-between gap-5"><a href="{{ route('home') }}" class="group flex items-center gap-3 font-extrabold tracking-tight" aria-label="{{ config('site.name') }} home"><img src="{{ config('site.logo') }}" width="36" height="36" alt="" class="size-9 rounded-xl" fetchpriority="high"><span>{{ config('site.name') }}</span></a><nav aria-label="Main navigation" class="flex items-center gap-5 text-sm font-semibold text-slate-600"><a href="{{ route('home') }}#tools" class="hover:text-violet-700">All tools</a><a href="{{ route('categories.index') }}" class="hidden hover:text-violet-700 sm:inline">Categories</a><span class="hidden items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-700 lg:flex"><span class="size-2 rounded-full bg-emerald-500"></span>Private & temporary</span></nav></div></header>
+<main id="main-content">{{ $slot }}</main><footer class="mt-20 border-t border-slate-200 bg-white"><div class="site-width grid gap-8 py-12 md:grid-cols-3"><div><p class="font-extrabold">{{ config('site.name') }}</p><p class="mt-2 text-sm leading-6 text-slate-500">Free practical tools. No customer account and no paid processing API.</p></div><div><p class="text-sm font-semibold text-slate-700">Your files are yours.</p><p class="mt-2 text-sm leading-6 text-slate-500">Temporary uploads are removed after {{ config('image-tools.task_ttl_minutes') }} minutes.</p></div><nav aria-label="Legal" class="grid grid-cols-2 gap-2 text-sm text-slate-500 md:text-right">@foreach(['privacy'=>'Privacy','terms'=>'Terms','cookies'=>'Cookies','acceptable-use'=>'Acceptable use','copyright'=>'Copyright','disclaimer'=>'Disclaimer','contact'=>'Contact'] as $slug=>$label)<a class="hover:text-violet-700" href="{{ route('legal.show',$slug) }}">{{ $label }}</a>@endforeach</nav></div></footer>
+@if(config('site.analytics_enabled') || config('site.advertising_enabled'))<div id="consent-banner" data-analytics-url="{{ config('site.analytics_script_url') }}" class="fixed inset-x-4 bottom-4 z-50 mx-auto hidden max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl" role="dialog" aria-labelledby="consent-title"><h2 id="consent-title" class="font-extrabold">Optional cookies</h2><p class="mt-2 text-sm text-slate-600">Essential tool functionality works without analytics or advertising cookies.</p><div class="mt-4 flex gap-2"><button id="consent-accept" class="btn-primary">Accept optional cookies</button><button id="consent-reject" class="secondary-button">Reject</button></div></div>@endif</body></html>

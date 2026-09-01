@@ -1,2 +1,6 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /tasks/
+Disallow: /qr/
+Sitemap: /sitemap.xml

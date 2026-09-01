@@ -1,0 +1,10 @@
+/var/www/tools/current/storage/logs/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su www-data www-data
+}
