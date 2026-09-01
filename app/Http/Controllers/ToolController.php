@@ -10,6 +10,6 @@ class ToolController extends Controller
     {
         abort_unless($definition = config("tools.$tool"), 404);
 
-        return view('tools.show', compact('tool', 'definition'));
+        return view(($definition['phase'] ?? 1) === 2 ? 'tools.phase2' : 'tools.show', compact('tool', 'definition'));
     }
 }

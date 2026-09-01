@@ -74,4 +74,32 @@ npm run build
 python -m compileall services/image-ai/app
 ```
 
-Phase 2 tools are intentionally not included.
+The remaining work is final production hardening and deployment-specific monitoring, backups, outbound firewalling, and capacity tuning.
+
+## Phase 2 tools and dependencies
+
+Phase 2 adds PDF compression/merge/split, invoice and GST invoice generation, static/dynamic QR codes with aggregate analytics, barcode label sheets, stationery, a Fabric.js poster editor, rules-based product descriptions, ATS resume PDFs, SSRF-protected SEO audits, WhatsApp links/QRs, and authorized bulk watermark processing.
+
+Composer packages are locked to compatible releases: Dompdf for local PDF generation, FPDI for PDF merge/split, chillerlan/php-qrcode for SVG QR codes, and picqer/php-barcode-generator for validated barcodes. Fabric.js powers browser-side poster editing and export.
+
+PDF merge/split works in PHP. Compression additionally requires Ghostscript:
+
+- Windows: install Ghostscript, then set `GHOSTSCRIPT_PATH=C:\Program Files\gs\gs10.xx.x\bin\gswin64c.exe`.
+- Debian/Ubuntu: `sudo apt install ghostscript qpdf` and use `GHOSTSCRIPT_PATH=gs`, `QPDF_PATH=qpdf`.
+- macOS: `brew install ghostscript qpdf`.
+
+`qpdf` is recommended for administrator-assisted handling of authorized encrypted documents; the app rejects encrypted/unsupported PDFs rather than attempting insecure password handling. Optional local language generation uses an Ollama-compatible endpoint configured with `OLLAMA_URL` and `OLLAMA_MODEL`; the rules-based product-description generator works without it.
+
+Dynamic QR management tokens are displayed once and stored only as SHA-256 hashes. Losing the token means losing analytics access. QR scan IP hashes rotate monthly, and only aggregate day/device/referrer information is exposed.
+
+The SEO audit accepts only HTTP/HTTPS, resolves and pins public DNS addresses, blocks private/reserved IPv4 and IPv6 plus metadata hosts, revalidates redirects, and enforces response, timeout, redirect, and link limits. Production deployments should also enforce outbound firewall rules as defense in depth.
+
+After updating:
+
+```powershell
+composer install
+npm install
+php artisan migrate
+npm run build
+php artisan test
+```

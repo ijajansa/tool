@@ -9,7 +9,9 @@ class StoreToolTaskRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return array_key_exists($this->route('tool'), config('tools'));
+        $tool = config('tools.'.$this->route('tool'));
+
+        return is_array($tool) && ($tool['phase'] ?? 1) === 1;
     }
 
     public function rules(): array

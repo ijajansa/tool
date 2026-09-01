@@ -1,4 +1,5 @@
 import './bootstrap';
+import './phase2';
 
 const search = document.querySelector('#tool-search');
 if (search) {
