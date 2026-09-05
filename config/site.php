@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'name' => env('SITE_NAME', 'PixelMint Tools'),
-    'tagline' => env('SITE_TAGLINE', 'Useful image tools. Private by design.'),
+    'name' => env('SITE_NAME', 'ToolJoy'),
+    'tagline' => env('SITE_TAGLINE', 'Everyday file tools, made joyful.'),
     'support_email' => env('SITE_SUPPORT_EMAIL', 'hello@example.test'),
-    'logo' => env('SITE_LOGO', '/brand/logo.svg'),
+    'logo' => env('SITE_LOGO', '/brand/tooljoy-logo.png'),
     'social_image' => env('SITE_SOCIAL_IMAGE', '/brand/social-preview.svg'),
     'analytics_enabled' => (bool) env('SITE_ANALYTICS_ENABLED', false),
     'advertising_enabled' => (bool) env('SITE_ADVERTISING_ENABLED', false),

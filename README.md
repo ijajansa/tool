@@ -1,4 +1,4 @@
-# PixelMint Tools — Phase 1
+# ToolJoy
 
 A Laravel 12 platform for free, anonymous image tools with private queued processing and an optional local FastAPI AI service.
 

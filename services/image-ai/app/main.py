@@ -18,7 +18,7 @@ MAX_PIXELS = int(os.getenv("IMAGE_AI_MAX_PIXELS", "40000000"))
 TIMEOUT_SECONDS = float(os.getenv("IMAGE_AI_REQUEST_TIMEOUT", "120"))
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
-app = FastAPI(title="PixelMint Local Image AI", version="1.0.0")
+app = FastAPI(title="ToolJoy Local Image AI", version="1.0.0")
 
 
 @dataclass
@@ -53,7 +53,7 @@ async def remove_background(file: UploadFile = File(...)) -> Response:
     image = await validated_image(file)
 
     def process() -> bytes:
-        with tempfile.TemporaryDirectory(prefix="pixelmint-"):
+        with tempfile.TemporaryDirectory(prefix="tooljoy-"):
             output = remove(image)
             result = Image.open(io.BytesIO(output) if isinstance(output, bytes) else output)
             buffer = io.BytesIO()

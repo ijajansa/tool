@@ -1,5 +1,5 @@
 [Unit]
-Description=PixelMint local image AI service
+Description=ToolJoy local image AI service
 After=network.target
 
 [Service]

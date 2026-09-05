@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+    Options -Indexes
+    RewriteEngine On
+
+    # XAMPP convenience: redirect repository-root requests to Laravel's
+    # public entry point when opened as http://localhost/tool/.
+    RewriteRule ^public(?:/|$) - [L]
+    RewriteRule ^(.*)$ /tool/public/$1 [R=302,L,NE]
+</IfModule>
